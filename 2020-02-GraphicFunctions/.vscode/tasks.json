@@ -1,0 +1,71 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "x16-build-ca65",
+            "type": "shell",
+            "command": "D:\\x-16\\cc65-snapshot-win32\\bin\\cl65 --verbose -o build.prg --cpu 65c02 -t cx16 ${file}",
+            "args": [
+                // 
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "clear": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "x16-run-prg debug video",
+            "type": "shell",
+            "command": "D:\\x-16\\x16emu_win-r36\\x16emu -prg ${workspaceFolder}\\build.prg -debug -log V",
+            "args": [
+                // 
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "clear": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "x16-run-prg",
+            "type": "shell",
+            "command": "D:\\x-16\\x16emu_win-r36\\x16emu -prg ${workspaceFolder}\\build.prg -debug",
+            "args": [
+                // 
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "clear": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "x16-run-basic",
+            "type": "shell",
+            "command": "D:\\x-16\\x16emu_win-r36\\x16emu -bas ${file} -debug",
+            "args": [
+                // 
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "clear": true
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}
