@@ -1,6 +1,7 @@
 ; Graphic Function demo
 ;-----------------------------------------------------------------------------
 ; Assembly demo of graph_put_char using cc65 compiler tools and Visual Studio Code
+; For use with r36 of the X16 emulator.
 ; by JustinBaldock 2020-02-01
 ; 
 
@@ -9,6 +10,7 @@
 .debuginfo on
 .listbytes unlimited
 
+;-----------------------------------------------------------------------------
 .segment  "ZEROPAGE"
 ; here is where you put any zero page variables.
 ; These are all items located in the $0000-$00ff memory space
@@ -18,10 +20,14 @@ pointerToString	    = $22
 pointerToStringLow  = $22
 pointerToStringHigh = $23
 
-; the below 3 segments are here so the linker doesn't complain https://www.cc65.org/doc/ld65-6.html
+;-----------------------------------------------------------------------------
 .segment "STARTUP" ; This segment contains the startup code which initializes the C software stack and the libraries
 .include "kernal.inc"
+
+;-----------------------------------------------------------------------------
 .segment "ONCE"
+
+;-----------------------------------------------------------------------------
 .segment "INIT" ; The INIT segment is used for initialization code that may be reused once execution reaches main
 
 ;-----------------------------------------------------------------------------
@@ -33,9 +39,9 @@ pointerToStringHigh = $23
 textString1: .asciiz "this is string 1"
 textString2: .asciiz "this is string 2"
 textString3: .asciiz "this is string 3"
+
 ;-----------------------------------------------------------------------------
 .segment "CODE"
-;-----------------------------------------------------------------------------
 
 jmp main
 
@@ -45,7 +51,7 @@ jmp main
     jsr SCREEN_SET_MODE
     ; set the graphic window size
     ; set r0(start-x) and r1(start-y) to zero
-    stz r0L
+    stz r0L ; STore Zero in to location
     stz r0H
     stz r1L
     stz r1H
@@ -59,31 +65,31 @@ jmp main
     sta r3L
     lda #>199
     sta r3H
-    ; use the kernal function
+    ; use the kernal function 
     jsr GRAPH_SET_WINDOW
-    ; set the grpahic colours 
-    lda #2
-    ldx #4
-    ldy #6
+    ; set the graphic colours 
+    lda #COLOUR_RED
+    ldx #COLOUR_PURPLE
+    ldy #COLOUR_BLUE
     ; use the kernal function
 	jsr GRAPH_SET_COLORS
 @drawString1:
     ; set start x/y position of text
-    lda #8
+    lda #7 ; 8 pixels for both x and y, remember we count from 0, 0-7
     sta r0L ; STore Accumulator to location
     sta r1L
     stz r1H ; STore Zero in to location
     stz r2H
     ; point to the string
-    lda #<textString1
-    sta pointerToStringLow
-    lda #>textString1
+    lda #<textString1 ; get the low address byte from memory 
+    sta pointerToStringLow ; 
+    lda #>textString1 ; get the high address byte from memory
     sta pointerToStringHigh
     ; now call my function to display string
     jsr write_text
 @drawString2:
     ; set x/y position of text
-    lda #24
+    lda #23
     sta r0L ; STore Accumulator to location
     sta r1L
     stz r1H ; STore Zero in to location
@@ -97,7 +103,7 @@ jmp main
     jsr write_text
 @drawString3:
     ; set x/y position of text
-    lda #48
+    lda #47
     sta r0L ; STore Accumulator to location
     sta r1L
     stz r1H ; STore Zero in to location
