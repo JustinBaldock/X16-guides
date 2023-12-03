@@ -1,0 +1,1 @@
+cl65 -l build.list --verbose -o timing-demo.prg --cpu 65c02 -t cx16 timing-demo.asm -C cx16-asm.cfg -m timing-demo.map -u __EXEHDR__

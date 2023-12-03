@@ -1,0 +1,189 @@
+ca65 V2.18 - Ubuntu 2.19-1
+Main file   : timing-demo.asm
+Current file: timing-demo.asm
+
+000000r 1               ; Using Visual Studio Code (VCS)
+000000r 1               ; VSC extensions
+000000r 1               ; ca65 Macro Assembler Language Support
+000000r 1               
+000000r 1               ; Requires cc65
+000000r 1               ;
+000000r 1               
+000000r 1               
+000000r 1               .org $080D
+00080D  1               
+00080D  1               
+00080D  1               .segment "STARTUP"
+00080D  1               .segment "INIT"
+00080D  1               .segment "ONCE"
+00080D  1               .segment "CODE"
+00080D  1               
+00080D  1               
+00080D  1  4C 1E 08     jmp start
+000810  1               
+000810  1               
+000810  1               .include "kernal.inc"
+000810  2               ; Kernal Zeropage
+000810  2               KERNAL_R0   = $0002
+000810  2               KERNAL_R0_L = $0002
+000810  2               KERNAL_R0_H = $0003
+000810  2               KERNAL_R1   = $0004
+000810  2               KERNAL_R1_L = $0004
+000810  2               KERNAL_R1_H = $0005
+000810  2               KERNAL_R2   = $0006
+000810  2               KERNAL_R2_L = $0006
+000810  2               KERNAL_R2_H = $0007
+000810  2               KERNAL_R3   = $0008
+000810  2               KERNAL_R3_L = $0008
+000810  2               KERNAL_R3_H = $0009
+000810  2               KERNAL_R4   = $000A
+000810  2               KERNAL_R4_L = $000A
+000810  2               KERNAL_R4_H = $000B
+000810  2               
+000810  2               ; Kernal Functions
+000810  2               KERNAL_CHROUT   = $FFD2
+000810  2               KERNAL_GETIN    = $FFE4
+000810  2               KERNAL_CLOCK_SET = $FF4D
+000810  2               KERNAL_CLOCK_GET = $FF50 ; https://github.com/X16Community/x16-docs/blob/master/X16%20Reference%20-%2004%20-%20KERNAL.md#function-name-clock_set_date_time
+000810  2               ; clock_get does NOT support jiffy
+000810  2               KERNAL_SETTIM = $FFDB ; https://www.pagetable.com/c64ref/kernal/#SETTIM
+000810  2               KERNAL_RDTIM = $FFDE ; https://www.pagetable.com/c64ref/kernal/#RDTIM
+000810  2               
+000810  1               .include "variables.inc"
+000810  2               ; variables
+000810  2               GAME_TIMER = $24    ; ZP address to manage game timing
+000810  2               
+000810  2               ; test messages
+000810  2  54 45 53 54  TEST_MESSAGE_1: .asciiz "test message."
+000814  2  20 4D 45 53  
+000818  2  53 41 47 45  
+00081E  2               
+00081E  1               .include "petsciiCodes.inc"
+00081E  2               ; PETSCII Codes
+00081E  2               WHITE             = $05
+00081E  2               RETURN            = $0D
+00081E  2               SPACE             = $20
+00081E  2               ZERO_CHAR         = $30
+00081E  2               SIX_CHAR          = $36
+00081E  2               NINE_CHAR         = $39
+00081E  2               C_CHAR            = $43
+00081E  2               I_CHAR            = $49
+00081E  2               O_CHAR            = $4F
+00081E  2               T_CHAR            = $54
+00081E  2               CLR               = $93
+00081E  2               
+00081E  2               ; Screen Codes
+00081E  2               REVERSE           = $80
+00081E  2               
+00081E  1               
+00081E  1               
+00081E  1               ; ----------
+00081E  1               ; start program
+00081E  1               ; ----------
+00081E  1               start:
+00081E  1  20 24 08         jsr initVariables
+000821  1  4C 2C 08         jmp main
+000824  1               
+000824  1               
+000824  1               ; ----------
+000824  1               ; initialize zero page variables for game
+000824  1               ; ----------
+000824  1               ; uses = A
+000824  1               ; ----------
+000824  1               initVariables:
+000824  1                   ; re-start the clock
+000824  1  20 DB FF         jsr KERNAL_SETTIM
+000827  1                   ; set my variables to zero
+000827  1  A9 00            lda #0 ;
+000829  1  85 24            sta GAME_TIMER ;
+00082B  1                   ; return
+00082B  1  60               rts
+00082C  1               
+00082C  1               
+00082C  1               ; ----------
+00082C  1               ; main
+00082C  1               ; ----------
+00082C  1               main:
+00082C  1                   ; this is the main game loop
+00082C  1                   ;
+00082C  1               @gameLoop:
+00082C  1               	; wait until 1/60 second has passed since last time
+00082C  1  20 70 08         jsr waitTimerInterrupt
+00082F  1                   ; once it returns we do our logic
+00082F  1               
+00082F  1                   ; print a message to screen
+00082F  1  20 36 08         jsr testMessage
+000832  1                   ; jump back to start of main loop
+000832  1  4C 2C 08         jmp @gameLoop
+000835  1               
+000835  1               @end:
+000835  1                   ; do some end game things
+000835  1  60               rts
+000836  1               
+000836  1               
+000836  1               ; ----------
+000836  1               ; display test message
+000836  1               ; ----------
+000836  1               testMessage:
+000836  1               @start:
+000836  1                   ; clear screen and set text to white
+000836  1                   ;lda #CLR
+000836  1                   ;jsr KERNAL_CHROUT
+000836  1  A9 05            lda #WHITE
+000838  1  20 D2 FF         jsr KERNAL_CHROUT
+00083B  1                   ; print text message
+00083B  1               @loopStart:
+00083B  1  A2 00            ldx #0
+00083D  1               @loopDisplayMessage:
+00083D  1  BD 10 08         lda TEST_MESSAGE_1,x
+000840  1  F0 06            beq @loopEnd
+000842  1  20 D2 FF         jsr KERNAL_CHROUT
+000845  1  E8               inx
+000846  1  80 F5            bra @loopDisplayMessage
+000848  1               @loopEnd:
+000848  1                   ; print out the game_timer has hex
+000848  1  20 53 08         jsr printGameTimer
+00084B  1  A9 0D            lda #RETURN
+00084D  1  20 D2 FF         jsr KERNAL_CHROUT
+000850  1  A2 00            ldx #0
+000852  1  60               rts
+000853  1               
+000853  1               
+000853  1               ; ----------
+000853  1               ; function - print game_timer as hex
+000853  1               ; ----------
+000853  1               printGameTimer:
+000853  1  A5 24            lda GAME_TIMER
+000855  1  4A               lsr A ; left shift to get just the high four bits
+000856  1  4A               lsr A
+000857  1  4A               lsr A
+000858  1  4A               lsr A
+000859  1  20 64 08         jsr @hexDigit ; process the first digit
+00085C  1  A5 24            lda GAME_TIMER
+00085E  1  29 0F            and #$0F ; extract the low four bits
+000860  1  20 64 08         jsr @hexDigit ; process the second digit
+000863  1  60               rts
+000864  1               @hexDigit:
+000864  1  C9 0A            cmp #$0A ; is digit alphabetic?
+000866  1  90 02            bcc @skip ; if 0-9 then skip
+000868  1  69 06            adc #$06 ; otherwise add seven
+00086A  1               @skip:
+00086A  1  69 30            adc #$30 ; convert to petscii
+00086C  1  20 D2 FF         jsr KERNAL_CHROUT ; print it out
+00086F  1  60               rts
+000870  1               
+000870  1               ; ----------
+000870  1               ; function - wait for timer interrupt
+000870  1               ; ----------
+000870  1               waitTimerInterrupt:
+000870  1               @start:
+000870  1  20 DE FF         jsr KERNAL_RDTIM ; Call kernal function to get time
+000873  1  85 24            sta GAME_TIMER
+000875  1               @loop:
+000875  1  20 DE FF         jsr KERNAL_RDTIM
+000878  1  C5 24            cmp GAME_TIMER ; Compare current jiffy in Y to previous jiffy in GAME_TIMER
+00087A  1  F0 F9            beq @loop ; If not different then loop
+00087C  1               @end:
+00087C  1  60               rts
+00087D  1               
+00087D  1               
