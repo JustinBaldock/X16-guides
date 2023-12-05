@@ -1,4 +1,5 @@
 ; Kernal Zeropage
+; The registers R0 to R4 are the 16-bit Application Binary Interface (ABI) used by the Kernal
 KERNAL_R0   = $0002
 KERNAL_R0_L = $0002
 KERNAL_R0_H = $0003
