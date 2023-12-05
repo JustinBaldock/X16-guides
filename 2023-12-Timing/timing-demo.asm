@@ -47,6 +47,9 @@ initVariables:
     jsr KERNAL_CHROUT
     lda #WHITE
     jsr KERNAL_CHROUT
+    ; setup our timing
+    jsr KERNAL_RDTIM ; Call kernal function to get time
+    sta GAME_TIMER ; store in our variable
     ; return
     rts
 
@@ -101,7 +104,7 @@ testMessage:
 ; ----------
 printGameTimer:
     lda GAME_TIMER
-    ; left shift to get just the high four bits
+    ; logical shift right to get just the high four bits
     lsr A
     lsr A
     lsr A
@@ -123,14 +126,17 @@ printGameTimer:
 ; ----------
 ; function - wait for timer interrupt
 ; ----------
+; This function uses the variable GAME_TIMER
+; The variable GAME_TIMER should be initialized during program start
+; Using the function KERNAL_RDTIM and saving reg A into GAME_TIMER
 waitTimerInterrupt:
 @start:
-    jsr KERNAL_RDTIM ; Call kernal function to get time
-    sta GAME_TIMER
+    ; none
 @loop:
     jsr KERNAL_RDTIM
-    cmp GAME_TIMER ; Compare current jiffy in Y to previous jiffy in GAME_TIMER
+    cmp GAME_TIMER ; Compare current jiffy in A to previous jiffy in GAME_TIMER
     beq @loop ; If not different then loop
 @end:
+    sta GAME_TIMER ; update our timing variable
     rts
 

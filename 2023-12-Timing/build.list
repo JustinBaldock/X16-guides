@@ -82,7 +82,7 @@ Current file: timing-demo.asm
 00081E  1               ; ----------
 00081E  1               start:
 00081E  1  20 24 08         jsr initVariables
-000821  1  4C 36 08         jmp main
+000821  1  4C 3B 08         jmp main
 000824  1               
 000824  1               
 000824  1               ; ----------
@@ -101,89 +101,97 @@ Current file: timing-demo.asm
 00082D  1  20 D2 FF         jsr KERNAL_CHROUT
 000830  1  A9 05            lda #WHITE
 000832  1  20 D2 FF         jsr KERNAL_CHROUT
-000835  1                   ; return
-000835  1  60               rts
-000836  1               
-000836  1               
-000836  1               ; ----------
-000836  1               ; main
-000836  1               ; ----------
-000836  1               main:
-000836  1                   ; this is the main game loop
-000836  1                   ;
-000836  1               @gameLoop:
-000836  1               	; wait until 1/60 second has passed since last time
-000836  1  20 75 08         jsr waitTimerInterrupt
-000839  1                   ; once it returns we do our logic
-000839  1               
-000839  1                   ; print a message to screen
-000839  1  20 40 08         jsr testMessage
-00083C  1                   ; jump back to start of main loop
-00083C  1  4C 36 08         jmp @gameLoop
-00083F  1               
-00083F  1               @end:
-00083F  1                   ; do some end game things
-00083F  1  60               rts
-000840  1               
-000840  1               
-000840  1               ; ----------
-000840  1               ; display test message
-000840  1               ; ----------
-000840  1               testMessage:
-000840  1               @start:
-000840  1                   ;
-000840  1               @loopStart:
-000840  1  A2 00            ldx #0
-000842  1               @loopDisplayMessage:
-000842  1  BD 10 08         lda TEST_MESSAGE_1,x
-000845  1  F0 06            beq @loopEnd
-000847  1  20 D2 FF         jsr KERNAL_CHROUT
-00084A  1  E8               inx
-00084B  1  80 F5            bra @loopDisplayMessage
-00084D  1               @loopEnd:
-00084D  1                   ; print out the game_timer has hex
-00084D  1  20 58 08         jsr printGameTimer
-000850  1  A9 0D            lda #RETURN
-000852  1  20 D2 FF         jsr KERNAL_CHROUT
-000855  1  A2 00            ldx #0
-000857  1  60               rts
-000858  1               
-000858  1               
-000858  1               ; ----------
-000858  1               ; function - print game_timer as hex
-000858  1               ; ----------
-000858  1               printGameTimer:
-000858  1  A5 24            lda GAME_TIMER
-00085A  1  4A               lsr A ; left shift to get just the high four bits
-00085B  1  4A               lsr A
-00085C  1  4A               lsr A
-00085D  1  4A               lsr A
-00085E  1  20 69 08         jsr @hexDigit ; process the first digit
-000861  1  A5 24            lda GAME_TIMER
-000863  1  29 0F            and #$0F ; extract the low four bits
-000865  1  20 69 08         jsr @hexDigit ; process the second digit
-000868  1  60               rts
-000869  1               @hexDigit:
-000869  1  C9 0A            cmp #$0A ; is digit alphabetic?
-00086B  1  90 02            bcc @skip ; if 0-9 then skip
-00086D  1  69 06            adc #$06 ; otherwise add seven
-00086F  1               @skip:
-00086F  1  69 30            adc #$30 ; convert to petscii
-000871  1  20 D2 FF         jsr KERNAL_CHROUT ; print it out
-000874  1  60               rts
-000875  1               
-000875  1               ; ----------
-000875  1               ; function - wait for timer interrupt
-000875  1               ; ----------
-000875  1               waitTimerInterrupt:
-000875  1               @start:
-000875  1  20 DE FF         jsr KERNAL_RDTIM ; Call kernal function to get time
-000878  1  85 24            sta GAME_TIMER
+000835  1                   ; setup our timing
+000835  1  20 DE FF         jsr KERNAL_RDTIM ; Call kernal function to get time
+000838  1  85 24            sta GAME_TIMER ; store in our variable
+00083A  1                   ; return
+00083A  1  60               rts
+00083B  1               
+00083B  1               
+00083B  1               ; ----------
+00083B  1               ; main
+00083B  1               ; ----------
+00083B  1               main:
+00083B  1                   ; this is the main game loop
+00083B  1                   ;
+00083B  1               @gameLoop:
+00083B  1               	; wait until 1/60 second has passed since last time
+00083B  1  20 7A 08         jsr waitTimerInterrupt
+00083E  1                   ; once it returns we do our logic
+00083E  1               
+00083E  1                   ; print a message to screen
+00083E  1  20 45 08         jsr testMessage
+000841  1                   ; jump back to start of main loop
+000841  1  4C 3B 08         jmp @gameLoop
+000844  1               
+000844  1               @end:
+000844  1                   ; do some end game things
+000844  1                   ; exit the game
+000844  1  60               rts
+000845  1               
+000845  1               
+000845  1               ; ----------
+000845  1               ; display test message
+000845  1               ; ----------
+000845  1               testMessage:
+000845  1               @start:
+000845  1                   ;
+000845  1               @loopStart:
+000845  1  A2 00            ldx #0
+000847  1               @loopDisplayMessage:
+000847  1  BD 10 08         lda TEST_MESSAGE_1,x
+00084A  1  F0 06            beq @loopEnd
+00084C  1  20 D2 FF         jsr KERNAL_CHROUT
+00084F  1  E8               inx
+000850  1  80 F5            bra @loopDisplayMessage
+000852  1               @loopEnd:
+000852  1                   ; print out the game_timer has hex
+000852  1  20 5D 08         jsr printGameTimer
+000855  1  A9 0D            lda #RETURN
+000857  1  20 D2 FF         jsr KERNAL_CHROUT
+00085A  1  A2 00            ldx #0
+00085C  1  60               rts
+00085D  1               
+00085D  1               
+00085D  1               ; ----------
+00085D  1               ; function - print game_timer as hex
+00085D  1               ; ----------
+00085D  1               printGameTimer:
+00085D  1  A5 24            lda GAME_TIMER
+00085F  1                   ; logical shift right to get just the high four bits
+00085F  1  4A               lsr A
+000860  1  4A               lsr A
+000861  1  4A               lsr A
+000862  1  4A               lsr A
+000863  1  20 6E 08         jsr @hexDigit ; process the first digit
+000866  1  A5 24            lda GAME_TIMER
+000868  1  29 0F            and #$0F ; use and to mask off the high bits and extract the low four bits
+00086A  1  20 6E 08         jsr @hexDigit ; process the second digit
+00086D  1  60               rts
+00086E  1               @hexDigit:
+00086E  1  C9 0A            cmp #$0A ; is digit alphabetic?
+000870  1  90 02            bcc @skip ; if 0-9 then skip
+000872  1  69 06            adc #$06 ; otherwise add seven
+000874  1               @skip:
+000874  1  69 30            adc #$30 ; convert to petscii
+000876  1  20 D2 FF         jsr KERNAL_CHROUT ; print it out
+000879  1  60               rts
+00087A  1               
+00087A  1               ; ----------
+00087A  1               ; function - wait for timer interrupt
+00087A  1               ; ----------
+00087A  1               ; This function uses the variable GAME_TIMER
+00087A  1               ; The variable GAME_TIMER should be initialized during program start
+00087A  1               ; Using the function KERNAL_RDTIM and saving reg A into GAME_TIMER
+00087A  1               waitTimerInterrupt:
+00087A  1               @start:
+00087A  1                   ; none
 00087A  1               @loop:
 00087A  1  20 DE FF         jsr KERNAL_RDTIM
-00087D  1  C5 24            cmp GAME_TIMER ; Compare current jiffy in Y to previous jiffy in GAME_TIMER
+00087D  1  C5 24            cmp GAME_TIMER ; Compare current jiffy in A to previous jiffy in GAME_TIMER
 00087F  1  F0 F9            beq @loop ; If not different then loop
 000881  1               @end:
-000881  1  60               rts
-000882  1               
-000882  1               
+000881  1  85 24            sta GAME_TIMER ; update our timing variable
+000883  1  60               rts
+000884  1               
+000884  1               
