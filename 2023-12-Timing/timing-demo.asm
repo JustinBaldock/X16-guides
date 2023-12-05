@@ -39,17 +39,14 @@ start:
 initVariables:
     ; re-start the clock
     jsr KERNAL_SETTIM
-    ; set my variables to zero
-    lda #0 ;
-    sta GAME_TIMER ;
+    ; setup our timing
+    jsr KERNAL_RDTIM ; Call kernal function to get time
+    sta GAME_TIMER ; store in our variable
     ; clear screen and set text to white
     lda #CTRL_CLR
     jsr KERNAL_CHROUT
     lda #COLOUR_WHITE
     jsr KERNAL_CHROUT
-    ; setup our timing
-    jsr KERNAL_RDTIM ; Call kernal function to get time
-    sta GAME_TIMER ; store in our variable
     ; return
     rts
 
