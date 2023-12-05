@@ -43,9 +43,9 @@ initVariables:
     lda #0 ;
     sta GAME_TIMER ;
     ; clear screen and set text to white
-    lda #CLR
+    lda #CTRL_CLR
     jsr KERNAL_CHROUT
-    lda #WHITE
+    lda #COLOUR_WHITE
     jsr KERNAL_CHROUT
     ; setup our timing
     jsr KERNAL_RDTIM ; Call kernal function to get time

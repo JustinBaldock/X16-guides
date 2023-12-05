@@ -24,6 +24,7 @@ Current file: timing-demo.asm
 000810  1               
 000810  1               .include "kernal.inc"
 000810  2               ; Kernal Zeropage
+000810  2               ; The registers R0 to R4 are the 16-bit Application Binary Interface (ABI) used by the Kernal
 000810  2               KERNAL_R0   = $0002
 000810  2               KERNAL_R0_L = $0002
 000810  2               KERNAL_R0_H = $0003
@@ -60,20 +61,20 @@ Current file: timing-demo.asm
 00081E  2               
 00081E  1               .include "petsciiCodes.inc"
 00081E  2               ; PETSCII Codes
-00081E  2               WHITE             = $05
+00081E  2               COLOUR_WHITE      = $05
 00081E  2               RETURN            = $0D
 00081E  2               SPACE             = $20
-00081E  2               ZERO_CHAR         = $30
-00081E  2               SIX_CHAR          = $36
-00081E  2               NINE_CHAR         = $39
-00081E  2               C_CHAR            = $43
-00081E  2               I_CHAR            = $49
-00081E  2               O_CHAR            = $4F
-00081E  2               T_CHAR            = $54
-00081E  2               CLR               = $93
+00081E  2               CHAR_ZERO         = $30
+00081E  2               CHAR_SIX          = $36
+00081E  2               CHAR_NINE         = $39
+00081E  2               CHAR_C            = $43
+00081E  2               CHAR_I            = $49
+00081E  2               CHAR_O            = $4F
+00081E  2               CHAR_T            = $54
+00081E  2               CTRL_CLR          = $93
 00081E  2               
 00081E  2               ; Screen Codes
-00081E  2               REVERSE           = $80
+00081E  2               CTRL_REVERSE      = $80
 00081E  2               
 00081E  1               
 00081E  1               
@@ -97,9 +98,9 @@ Current file: timing-demo.asm
 000827  1  A9 00            lda #0 ;
 000829  1  85 24            sta GAME_TIMER ;
 00082B  1                   ; clear screen and set text to white
-00082B  1  A9 93            lda #CLR
+00082B  1  A9 93            lda #CTRL_CLR
 00082D  1  20 D2 FF         jsr KERNAL_CHROUT
-000830  1  A9 05            lda #WHITE
+000830  1  A9 05            lda #COLOUR_WHITE
 000832  1  20 D2 FF         jsr KERNAL_CHROUT
 000835  1                   ; setup our timing
 000835  1  20 DE FF         jsr KERNAL_RDTIM ; Call kernal function to get time
