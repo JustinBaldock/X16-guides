@@ -42,6 +42,11 @@ initVariables:
     ; set my variables to zero
     lda #0 ;
     sta GAME_TIMER ;
+    ; clear screen and set text to white
+    lda #CLR
+    jsr KERNAL_CHROUT
+    lda #WHITE
+    jsr KERNAL_CHROUT
     ; return
     rts
 
@@ -64,6 +69,7 @@ main:
 
 @end:
     ; do some end game things
+    ; exit the game
     rts
 
 
@@ -72,12 +78,7 @@ main:
 ; ----------
 testMessage:
 @start:
-    ; clear screen and set text to white
-    ;lda #CLR
-    ;jsr KERNAL_CHROUT
-    lda #WHITE
-    jsr KERNAL_CHROUT
-    ; print text message
+    ;
 @loopStart:
     ldx #0
 @loopDisplayMessage:
@@ -100,13 +101,14 @@ testMessage:
 ; ----------
 printGameTimer:
     lda GAME_TIMER
-    lsr A ; left shift to get just the high four bits
+    ; left shift to get just the high four bits
+    lsr A
     lsr A
     lsr A
     lsr A
     jsr @hexDigit ; process the first digit
     lda GAME_TIMER
-    and #$0F ; extract the low four bits
+    and #$0F ; use and to mask off the high bits and extract the low four bits
     jsr @hexDigit ; process the second digit
     rts
 @hexDigit:
