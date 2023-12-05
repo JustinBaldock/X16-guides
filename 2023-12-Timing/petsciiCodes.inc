@@ -1,14 +1,14 @@
 ; PETSCII Codes
-WHITE             = $05
+COLOUR_WHITE      = $05
 RETURN            = $0D
 SPACE             = $20
-ZERO_CHAR         = $30
-SIX_CHAR          = $36
-NINE_CHAR         = $39
-C_CHAR            = $43
-I_CHAR            = $49
-O_CHAR            = $4F
-T_CHAR            = $54
+CHAR_ZERO         = $30
+CHAR_SIX          = $36
+CHAR_NINE         = $39
+CHAR_C            = $43
+CHAR_I            = $49
+CHAR_O            = $4F
+CHAR_T            = $54
 CLR               = $93
 
 ; Screen Codes
