@@ -97,9 +97,6 @@ Current file: timing-demo.asm
 000827  1                   ; setup our timing
 000827  1  20 DE FF         jsr KERNAL_RDTIM ; Call kernal function to get time
 00082A  1  85 24            sta GAME_TIMER ; store in our variable
-00082C  1                   ; set my variables to zero
-00082C  1                   ;lda #0 ;
-00082C  1                   ;sta GAME_TIMER ;
 00082C  1                   ; clear screen and set text to white
 00082C  1  A9 93            lda #CTRL_CLR
 00082E  1  20 D2 FF         jsr KERNAL_CHROUT
