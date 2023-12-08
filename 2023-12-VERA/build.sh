@@ -1,0 +1,1 @@
+cl65 -l build.list --verbose -o vera-demo.prg --cpu 65c02 -t cx16 vera-demo.asm -C cx16-asm.cfg -m vera-demo.map -u __EXEHDR__
