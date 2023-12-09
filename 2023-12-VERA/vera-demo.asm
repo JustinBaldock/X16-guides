@@ -51,11 +51,11 @@ initVariables:
     jsr KERNAL_CHROUT
     lda #COLOUR_WHITE
     jsr KERNAL_CHROUT
-    ; Define Sprite
+    ; setup vera for loading Sprite
     stz VERA_CTRL
     lda #%00010000 
-    ora #<SPRITE_GRAPHICS
-    sta VERA_ADDR_H ; set address increment to 1
+    ;ora #<SPRITE_GRAPHICS
+    sta VERA_ADDR_H ; set address increment to 1 byte and bank 0
     lda #<SPRITE_GRAPHICS
     sta VERA_ADDR_M
     lda #>SPRITE_GRAPHICS
@@ -66,7 +66,7 @@ initVariables:
     sta REGISTER_COPY
     lda #>data
     sta REGISTER_COPY+1
-    ; copy 32 x 256 bytes to VRAM
+    ; start = copy 32 x 256 bytes to VRAM
     ldx #32
     ldy #0
 @copyLoop:
@@ -77,6 +77,7 @@ initVariables:
     inc REGISTER_COPY+1
     dex
     bne @copyLoop
+    ; end = copy 32 x 256 bytes to VRAM
 
     ; turn Sprite on
     lda $9F29
@@ -84,20 +85,20 @@ initVariables:
     sta $9F29
     ; Set vera address for update Sprite 1 definition
     lda #%00010001                            
-    sta VERA_ADDR_H
+    sta VERA_ADDR_H ; address increment 1, vram address bank 1
     lda #>SPRITE1
     sta VERA_ADDR_M
     lda #<SPRITE1
     sta VERA_ADDR_L
     ; Configure 8 bytes of Sprite definition
-    lda #%01111101 
-    sta VERA_DATA0 ; set source vram to $4000                     
-    lda #%10000000 
-    sta VERA_DATA0 ; set mode to 8 bpp
-    stz VERA_DATA0 ; x
-    stz VERA_DATA0 ; x
-    stz VERA_DATA0 ; y
-    stz VERA_DATA0 ; y
+    ;lda #%01111101 
+    stz VERA_DATA0 ; set source bits 12-5 to zero for $4000                     
+    lda #%10000010 
+    sta VERA_DATA0 ; set mode to 8 bpp, and source bits 16-13 for $4000
+    stz VERA_DATA0 ; zero x
+    stz VERA_DATA0 ; zero x
+    stz VERA_DATA0 ; zero y
+    stz VERA_DATA0 ; zero y
     lda #%00001100 
     sta VERA_DATA0 ; collisoin, z-depth, v/h flip
     lda #%10100000
