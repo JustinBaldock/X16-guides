@@ -2,8 +2,11 @@
 GAME_TIMER = $24    ; ZP address to manage game timing
 GAME_BACKGROUND = $25   ; ZP address to manage game background colour
 
-; test messages
-TEST_MESSAGE_1: .asciiz "test message."
+; specific VRAM Locations
+SPRITE_GRAPHICS = $4000
+SPRITE1         = $FC08
+
+REGISTER_COPY = $26
 
 ; our sprite data
 dataOld:

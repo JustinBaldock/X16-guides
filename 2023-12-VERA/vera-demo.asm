@@ -8,9 +8,6 @@
 
 .org $080D
 
-; specific VRAM Locations
-SPRITE_GRAPHICS = $4000
-SPRITE1         = $FC08
 
 .segment "STARTUP"
 .segment "INIT"
@@ -54,33 +51,46 @@ initVariables:
     jsr KERNAL_CHROUT
     lda #COLOUR_WHITE
     jsr KERNAL_CHROUT
-    ; load sprite
     ; Define Sprite
     stz VERA_CTRL
     lda #$10
-    sta VERA_ADDRx_H
-    lda #$40
-    sta VERA_ADDRx_M
-    stz VERA_ADDRx_L 
+    ora #<SPRITE_GRAPHICS
+    sta VERA_ADDR_H
+    lda #>SPRITE_GRAPHICS
+    sta VERA_ADDR_H
+    stz VERA_ADDR_L
+    ; load sprite
+    ; Prepare for data copy from RAM to VRAM
+    lda #<data                          
+    sta REGISTER_COPY
+    lda #>data
+    sta REGISTER_COPY+1
+    ; copy 32 x 256 bytes to VRAM
+    ldx #32
     ldy #0
-readSprite:
-    lda data,Y
-    sta VERA_DATA0
+@copyLoop:
+    lda (REGISTER_COPY),y
+    sta VERA_DATA0                      
     iny 
-    bne readSprite
-    ; Initiate Sprite
+    bne @copyLoop
+    inc REGISTER_COPY+1
+    dex
+    bne @copyLoop
+
+    ; turn Sprite on
     lda $9F29
     ora #%01000000
     sta $9F29
-
-    lda #$11
-    sta VERA_ADDRx_H
-    lda #$FC
-    sta VERA_ADDRx_M
-    stz VERA_ADDRx_L
-
-    stz VERA_DATA0
-    lda #$82
+    ; Set address for Sprite 1
+    lda #$11                            
+    sta VERA_ADDR_H
+    lda #>SPRITE1
+    sta VERA_ADDR_M
+    lda #<SPRITE1
+    sta VERA_ADDR_L
+    ; Configure 8 bytes of Sprite definition
+    stz VERA_DATA0                      
+    lda #%10000010
     sta VERA_DATA0
     stz VERA_DATA0
     stz VERA_DATA0
@@ -88,7 +98,7 @@ readSprite:
     stz VERA_DATA0
     lda #%00001100
     sta VERA_DATA0
-    lda #%01010000
+    lda #%10100000
     sta VERA_DATA0
 
     ; return
