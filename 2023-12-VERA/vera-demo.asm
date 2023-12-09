@@ -120,6 +120,7 @@ main:
     ; once it returns we do our logic
 
     ; move sprite
+    jsr bounceSprite
 
     ; jump back to start of main loop
     jmp @gameLoop
@@ -159,3 +160,90 @@ setupVera:
     sta VERA_DC_VIDEO ; set vera with sprite on
     ; set our layer, 
     stz VERA_CTRL
+
+
+; ----------
+; function - bounceSprite
+; ----------  
+bounceSprite:
+    ; update x
+    lda sprite1PosX
+    clc
+    adc sprite1DeltaX
+    sta sprite1PosX
+    lda sprite1PosX+1
+    adc sprite1DeltaX+1
+    sta sprite1PosX+1
+    ; update y
+    lda sprite1PosY
+    clc
+    adc sprite1DeltaY
+    sta sprite1PosY
+    lda sprite1PosY+1
+    adc sprite1DeltaY+1
+    sta sprite1PosY+1
+    ; check right bounds
+@checkRight:
+    lda sprite1PosX+1
+    cmp #$01
+    bne @checkLeft
+    lda sprite1PosX
+    cmp #$1F
+    bne @checkLeft
+    ; hit the right edge, change delta x = -1
+    lda #255
+    sta sprite1DeltaX
+    sta sprite1DeltaX+1
+    jmp @checkBottom
+@checkLeft:
+    lda sprite1PosX+1
+    bne @checkBottom
+    lda sprite1PosX
+    bne @checkBottom
+    ; hit the left edge, change delta x <= +1
+    lda #1
+    sta sprite1DeltaX
+    sta sprite1DeltaX+1
+@checkBottom:
+    lda sprite1PosY+1
+    cmp #$00
+    bne @checkTop
+    lda sprite1PosY
+    cmp #$cf
+    bne @checkTop
+    ; hit bottom edge, delta y <= -1
+    lda #255
+    sta sprite1DeltaY
+    sta sprite1DeltaY+1
+    jmp @updateSprite
+@checkTop:
+    lda sprite1PosY+1
+    bne @updateSprite
+    lda sprite1PosY
+    bne @updateSprite
+    ; hit top edge, delta y <= +1
+    lda #1
+    sta sprite1DeltaY
+    sta sprite1DeltaY+1
+
+@updateSprite:
+    ; setup vera to update sprite1
+    stz VERA_CTRL
+    lda #$11
+    sta VERA_ADDR_H
+    lda #$FC
+    sta VERA_ADDR_M
+    lda #$0A
+    sta VERA_ADDR_L ; want to edit 3rd byte of first sprite
+    ; 
+    lda sprite1PosX
+    sta VERA_DATA0
+    lda sprite1PosX+1
+    sta VERA_DATA0
+    lda sprite1PosY
+    sta VERA_DATA0
+    lda sprite1PosY+1
+    sta VERA_DATA0
+    ; sprites should be handled
+    rts
+

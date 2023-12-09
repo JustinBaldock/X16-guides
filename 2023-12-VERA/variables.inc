@@ -1,31 +1,19 @@
 ; variables
 GAME_TIMER = $24    ; ZP address to manage game timing
 GAME_BACKGROUND = $25   ; ZP address to manage game background colour
+REGISTER_COPY = $26
 
 ; specific VRAM Locations
 SPRITE_GRAPHICS = $4000
 SPRITE1         = $FC08
 
-REGISTER_COPY = $26
+; variables
+sprite1PosX:    .word 100
+sprite1PosY:    .word 100
+sprite1Frame:   .byte 0
+sprite1DeltaX:  .word 1
+sprite1DeltaY:  .word 1
 
-; our sprite data
-dataOld:
-   .byte 16,16,16,16,16,16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-   .byte 16,38,38,38,38,38,16, 0, 0, 0, 0, 0, 0, 0, 0, 0
-   .byte 16,50,50,50,50,38,16, 0, 0, 0, 0, 0, 0, 0, 0, 0
-   .byte 16,50,50,50,38,16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-   .byte 16,50,50,50,50,38,16, 0, 0, 0, 0, 0, 0, 0, 0, 0
-   .byte 16,50,16,16,50,50,38,16, 0, 0, 0, 0, 0, 0, 0, 0
-   .byte  0,16,16, 0,16,50,50,38,16, 0, 0, 0, 0, 0, 0, 0
-   .byte  0, 0, 0, 0, 0,16,50,50,38,16, 0, 0, 0, 0, 0, 0
-   .byte  0, 0, 0, 0, 0, 0,16,50,50,38,16, 0, 0, 0, 0, 0
-   .byte  0, 0, 0, 0, 0, 0, 0,16,50,16, 0, 0, 0, 0, 0, 0
-   .byte  0, 0, 0, 0, 0, 0, 0, 0,16, 0, 0, 0, 0, 0, 0, 0
-   .byte  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-   .byte  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-   .byte  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-   .byte  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-   .byte  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 ; Sprite Graphics
 data:   
