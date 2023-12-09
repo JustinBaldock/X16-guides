@@ -53,12 +53,13 @@ initVariables:
     jsr KERNAL_CHROUT
     ; Define Sprite
     stz VERA_CTRL
-    lda #$10
+    lda #%00010000 
     ora #<SPRITE_GRAPHICS
-    sta VERA_ADDR_H
+    sta VERA_ADDR_H ; set address increment to 1
+    lda #<SPRITE_GRAPHICS
+    sta VERA_ADDR_M
     lda #>SPRITE_GRAPHICS
-    sta VERA_ADDR_H
-    stz VERA_ADDR_L
+    sta VERA_ADDR_L
     ; load sprite
     ; Prepare for data copy from RAM to VRAM
     lda #<data                          
@@ -81,25 +82,26 @@ initVariables:
     lda $9F29
     ora #%01000000
     sta $9F29
-    ; Set address for Sprite 1
-    lda #$11                            
+    ; Set vera address for update Sprite 1 definition
+    lda #%00010001                            
     sta VERA_ADDR_H
     lda #>SPRITE1
     sta VERA_ADDR_M
     lda #<SPRITE1
     sta VERA_ADDR_L
     ; Configure 8 bytes of Sprite definition
-    stz VERA_DATA0                      
-    lda #%10000010
-    sta VERA_DATA0
-    stz VERA_DATA0
-    stz VERA_DATA0
-    stz VERA_DATA0
-    stz VERA_DATA0
-    lda #%00001100
-    sta VERA_DATA0
+    lda #%01111101 
+    sta VERA_DATA0 ; set source vram to $4000                     
+    lda #%10000000 
+    sta VERA_DATA0 ; set mode to 8 bpp
+    stz VERA_DATA0 ; x
+    stz VERA_DATA0 ; x
+    stz VERA_DATA0 ; y
+    stz VERA_DATA0 ; y
+    lda #%00001100 
+    sta VERA_DATA0 ; collisoin, z-depth, v/h flip
     lda #%10100000
-    sta VERA_DATA0
+    sta VERA_DATA0 ; sprite heigh=32, width=32, palette offset
 
     ; return
     rts
