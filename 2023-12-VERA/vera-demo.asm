@@ -203,7 +203,7 @@ bounceSprite:
     ; hit the left edge, change delta x <= +1
     lda #1
     sta sprite1DeltaX
-    sta sprite1DeltaX+1
+    stz sprite1DeltaX+1
 @checkBottom:
     lda sprite1PosY+1
     cmp #$00
@@ -224,7 +224,7 @@ bounceSprite:
     ; hit top edge, delta y <= +1
     lda #1
     sta sprite1DeltaY
-    sta sprite1DeltaY+1
+    stz sprite1DeltaY+1
 
 @updateSprite:
     ; setup vera to update sprite1

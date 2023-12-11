@@ -1090,7 +1090,7 @@ Current file: vera-demo.asm
 0028FE  1                   ; hit the left edge, change delta x <= +1
 0028FE  1  A9 01            lda #1
 002900  1  8D 15 08         sta sprite1DeltaX
-002903  1  8D 16 08         sta sprite1DeltaX+1
+002903  1  9C 16 08         stz sprite1DeltaX+1
 002906  1               @checkBottom:
 002906  1  AD 13 08         lda sprite1PosY+1
 002909  1  C9 00            cmp #$00
@@ -1111,7 +1111,7 @@ Current file: vera-demo.asm
 002929  1                   ; hit top edge, delta y <= +1
 002929  1  A9 01            lda #1
 00292B  1  8D 17 08         sta sprite1DeltaY
-00292E  1  8D 18 08         sta sprite1DeltaY+1
+00292E  1  9C 18 08         stz sprite1DeltaY+1
 002931  1               
 002931  1               @updateSprite:
 002931  1                   ; setup vera to update sprite1
