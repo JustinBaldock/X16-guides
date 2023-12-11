@@ -56,9 +56,9 @@ initVariables:
     lda #%00010000 
     ;ora #<SPRITE_GRAPHICS
     sta VERA_ADDR_H ; set address increment to 1 byte and bank 0
-    lda #<SPRITE_GRAPHICS
+    lda #$40
     sta VERA_ADDR_M
-    lda #>SPRITE_GRAPHICS
+    lda #$00
     sta VERA_ADDR_L
     ; load sprite
     ; Prepare for data copy from RAM to VRAM
@@ -84,6 +84,8 @@ initVariables:
     ora #%01000000
     sta $9F29
     ; Set vera address for update Sprite 1 definition
+    ; sprite attributes are $1fC00 - $1ffff
+    ; https://github.com/X16Community/x16-docs/blob/master/VERA%20Programmer's%20Reference.md#vram-address-space-layout
     lda #%00010001                            
     sta VERA_ADDR_H ; address increment 1, vram address bank 1
     lda #>SPRITE1
@@ -100,7 +102,7 @@ initVariables:
     stz VERA_DATA0 ; zero y
     stz VERA_DATA0 ; zero y
     lda #%00001100 
-    sta VERA_DATA0 ; collisoin, z-depth, v/h flip
+    sta VERA_DATA0 ; Collision mask, z-depth, v/h flip
     lda #%10100000
     sta VERA_DATA0 ; sprite heigh=32, width=32, palette offset
 
@@ -227,6 +229,17 @@ bounceSprite:
     stz sprite1DeltaY+1
 
 @updateSprite:
+    ; update frame
+    inc sprite1Frame
+    lda sprite1Frame
+    cmp #8
+    bne @frameUpdate
+    ; loop frame back to zero
+    lda #0
+@frameUpdate;
+    sta sprite1Frame
+
+    ; 
     ; setup vera to update sprite1
     stz VERA_CTRL
     lda #$11
@@ -244,6 +257,6 @@ bounceSprite:
     sta VERA_DATA0
     lda sprite1PosY+1
     sta VERA_DATA0
-    ; sprites should be handled
+    ; sprite 1 should be handled
     rts
 

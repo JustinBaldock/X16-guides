@@ -2,6 +2,8 @@
 GAME_TIMER = $24    ; ZP address to manage game timing
 GAME_BACKGROUND = $25   ; ZP address to manage game background colour
 REGISTER_COPY = $26
+REGISTER_COPY_L = $26
+REGISTER_COPY_H = $27
 
 ; specific VRAM Locations
 SPRITE_GRAPHICS = $4000

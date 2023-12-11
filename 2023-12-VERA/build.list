@@ -58,6 +58,8 @@ Current file: vera-demo.asm
 000810  2               GAME_TIMER = $24    ; ZP address to manage game timing
 000810  2               GAME_BACKGROUND = $25   ; ZP address to manage game background colour
 000810  2               REGISTER_COPY = $26
+000810  2               REGISTER_COPY_L = $26
+000810  2               REGISTER_COPY_H = $27
 000810  2               
 000810  2               ; specific VRAM Locations
 000810  2               SPRITE_GRAPHICS = $4000
@@ -943,9 +945,9 @@ Current file: vera-demo.asm
 002838  1  A9 10            lda #%00010000
 00283A  1                   ;ora #<SPRITE_GRAPHICS
 00283A  1  8D 22 9F         sta VERA_ADDR_H ; set address increment to 1 byte and bank 0
-00283D  1  A9 00            lda #<SPRITE_GRAPHICS
+00283D  1  A9 40            lda #$40
 00283F  1  8D 21 9F         sta VERA_ADDR_M
-002842  1  A9 40            lda #>SPRITE_GRAPHICS
+002842  1  A9 00            lda #$00
 002844  1  8D 20 9F         sta VERA_ADDR_L
 002847  1                   ; load sprite
 002847  1                   ; Prepare for data copy from RAM to VRAM
@@ -971,6 +973,8 @@ Current file: vera-demo.asm
 002863  1  09 40            ora #%01000000
 002865  1  8D 29 9F         sta $9F29
 002868  1                   ; Set vera address for update Sprite 1 definition
+002868  1                   ; sprite attributes are $1fC00 - $1ffff
+002868  1                   ; https://github.com/X16Community/x16-docs/blob/master/VERA%20Programmer's%20Reference.md#vram-address-space-layout
 002868  1  A9 11            lda #%00010001
 00286A  1  8D 22 9F         sta VERA_ADDR_H ; address increment 1, vram address bank 1
 00286D  1  A9 FC            lda #>SPRITE1
@@ -987,7 +991,7 @@ Current file: vera-demo.asm
 002885  1  9C 23 9F         stz VERA_DATA0 ; zero y
 002888  1  9C 23 9F         stz VERA_DATA0 ; zero y
 00288B  1  A9 0C            lda #%00001100
-00288D  1  8D 23 9F         sta VERA_DATA0 ; collisoin, z-depth, v/h flip
+00288D  1  8D 23 9F         sta VERA_DATA0 ; Collision mask, z-depth, v/h flip
 002890  1  A9 A0            lda #%10100000
 002892  1  8D 23 9F         sta VERA_DATA0 ; sprite heigh=32, width=32, palette offset
 002895  1               
@@ -1131,7 +1135,7 @@ Current file: vera-demo.asm
 002952  1  8D 23 9F         sta VERA_DATA0
 002955  1  AD 13 08         lda sprite1PosY+1
 002958  1  8D 23 9F         sta VERA_DATA0
-00295B  1                   ; sprites should be handled
+00295B  1                   ; sprite 1 should be handled
 00295B  1  60               rts
 00295C  1               
 00295C  1               
