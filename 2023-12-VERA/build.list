@@ -1118,24 +1118,35 @@ Current file: vera-demo.asm
 00292E  1  9C 18 08         stz sprite1DeltaY+1
 002931  1               
 002931  1               @updateSprite:
-002931  1                   ; setup vera to update sprite1
-002931  1  9C 25 9F         stz VERA_CTRL
-002934  1  A9 11            lda #$11
-002936  1  8D 22 9F         sta VERA_ADDR_H
-002939  1  A9 FC            lda #$FC
-00293B  1  8D 21 9F         sta VERA_ADDR_M
-00293E  1  A9 0A            lda #$0A
-002940  1  8D 20 9F         sta VERA_ADDR_L ; want to edit 3rd byte of first sprite
-002943  1                   ;
-002943  1  AD 10 08         lda sprite1PosX
-002946  1  8D 23 9F         sta VERA_DATA0
-002949  1  AD 11 08         lda sprite1PosX+1
-00294C  1  8D 23 9F         sta VERA_DATA0
-00294F  1  AD 12 08         lda sprite1PosY
-002952  1  8D 23 9F         sta VERA_DATA0
-002955  1  AD 13 08         lda sprite1PosY+1
-002958  1  8D 23 9F         sta VERA_DATA0
-00295B  1                   ; sprite 1 should be handled
-00295B  1  60               rts
-00295C  1               
-00295C  1               
+002931  1                   ; update frame
+002931  1  EE 14 08         inc sprite1Frame
+002934  1  AD 14 08         lda sprite1Frame
+002937  1  C9 08            cmp #8
+002939  1  D0 02            bne @frameUpdate
+00293B  1                   ; loop frame back to zero
+00293B  1  A9 00            lda #0
+00293D  1               @frameUpdate:
+00293D  1  8D 14 08         sta sprite1Frame
+002940  1               
+002940  1                   ;
+002940  1                   ; setup vera to update sprite1
+002940  1  9C 25 9F         stz VERA_CTRL
+002943  1  A9 11            lda #$11
+002945  1  8D 22 9F         sta VERA_ADDR_H
+002948  1  A9 FC            lda #$FC
+00294A  1  8D 21 9F         sta VERA_ADDR_M
+00294D  1  A9 0A            lda #$0A
+00294F  1  8D 20 9F         sta VERA_ADDR_L ; want to edit 3rd byte of first sprite
+002952  1                   ;
+002952  1  AD 10 08         lda sprite1PosX
+002955  1  8D 23 9F         sta VERA_DATA0
+002958  1  AD 11 08         lda sprite1PosX+1
+00295B  1  8D 23 9F         sta VERA_DATA0
+00295E  1  AD 12 08         lda sprite1PosY
+002961  1  8D 23 9F         sta VERA_DATA0
+002964  1  AD 13 08         lda sprite1PosY+1
+002967  1  8D 23 9F         sta VERA_DATA0
+00296A  1                   ; sprite 1 should be handled
+00296A  1  60               rts
+00296B  1               
+00296B  1               

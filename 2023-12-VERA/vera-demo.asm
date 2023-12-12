@@ -236,9 +236,8 @@ bounceSprite:
     bne @frameUpdate
     ; loop frame back to zero
     lda #0
-@frameUpdate;
+@frameUpdate:
     sta sprite1Frame
-
     ; 
     ; setup vera to update sprite1
     stz VERA_CTRL
