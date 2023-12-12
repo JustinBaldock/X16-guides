@@ -1,0 +1,40 @@
+Modules list:
+-------------
+table-demo.o:
+    CODE              Offs=000000  Size=00007E  Align=00001  Fill=0000
+/usr/share/cc65/lib/cx16.lib(exehdr.o):
+    EXEHDR            Offs=000000  Size=00000C  Align=00001  Fill=0000
+/usr/share/cc65/lib/cx16.lib(loadaddr.o):
+    LOADADDR          Offs=000000  Size=000002  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+LOADADDR              0007FF  000800  000002  00001
+EXEHDR                000801  00080C  00000C  00001
+CODE                  00080D  00088A  00007E  00001
+
+
+Exports list by name:
+---------------------
+__EXEHDR__                000001 REA    __HIMEM__                 009F00 REA    
+__LOADADDR__              000001 REA    
+
+
+Exports list by value:
+----------------------
+__EXEHDR__                000001 REA    __LOADADDR__              000001 REA    
+__HIMEM__                 009F00 REA    
+
+
+Imports list:
+-------------
+__EXEHDR__ (exehdr.o):
+    [linker generated]       
+__HIMEM__ ([linker generated]):
+    [linker generated]        /usr/share/cc65/cfg/cx16-asm.cfg(11)
+__LOADADDR__ (loadaddr.o):
+    [linker generated]        /usr/share/cc65/cfg/cx16-asm.cfg(5)
+

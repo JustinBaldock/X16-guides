@@ -1,0 +1,169 @@
+ca65 V2.18 - Ubuntu 2.19-1
+Main file   : table-demo.asm
+Current file: table-demo.asm
+
+000000r 1               ; Using Visual Studio Code (VCS)
+000000r 1               ; VSC extensions
+000000r 1               ; ca65 Macro Assembler Language Support
+000000r 1               
+000000r 1               ; Requires cc65
+000000r 1               ;
+000000r 1               
+000000r 1               
+000000r 1               .org $080D
+00080D  1               
+00080D  1               
+00080D  1               .segment "STARTUP"
+00080D  1               .segment "INIT"
+00080D  1               .segment "ONCE"
+00080D  1               .segment "CODE"
+00080D  1               
+00080D  1               
+00080D  1  4C 32 08     jmp start
+000810  1               
+000810  1               
+000810  1               .include "kernal.inc"
+000810  2               ; Kernal Zeropage
+000810  2               ; The registers R0 to R4 are the 16-bit Application Binary Interface (ABI) used by the Kernal
+000810  2               ; R0 - R5 = Arguments / Return values
+000810  2               ; R6 - R10 = Return values
+000810  2               ; R11 - R15 = Scratch
+000810  2               KERNAL_R0   = $0002
+000810  2               KERNAL_R0_L = $0002
+000810  2               KERNAL_R0_H = $0003
+000810  2               KERNAL_R1   = $0004
+000810  2               KERNAL_R1_L = $0004
+000810  2               KERNAL_R1_H = $0005
+000810  2               KERNAL_R2   = $0006
+000810  2               KERNAL_R2_L = $0006
+000810  2               KERNAL_R2_H = $0007
+000810  2               KERNAL_R3   = $0008
+000810  2               KERNAL_R3_L = $0008
+000810  2               KERNAL_R3_H = $0009
+000810  2               KERNAL_R4   = $000A
+000810  2               KERNAL_R4_L = $000A
+000810  2               KERNAL_R4_H = $000B
+000810  2               
+000810  2               ; Kernal Functions
+000810  2               KERNAL_CHROUT   = $FFD2
+000810  2               KERNAL_GETIN    = $FFE4
+000810  2               KERNAL_CLOCK_SET = $FF4D
+000810  2               KERNAL_CLOCK_GET = $FF50 ; https://github.com/X16Community/x16-docs/blob/master/X16%20Reference%20-%2004%20-%20KERNAL.md#function-name-clock_set_date_time
+000810  2               ; clock_get does NOT support jiffy
+000810  2               KERNAL_GRAPH_CLEAR  = $FF23
+000810  2               KERNAL_GRAPH_DRAW_LINE  = $FF2C
+000810  2               KERNEL_GRAPH_INIT   = $FF20
+000810  2               KERNAL_GRAPH_SET_COLORS = $FF29
+000810  2               KERNAL_GRAPH_SET_WINDOW = $FF26
+000810  2               KERNAL_SETTIM = $FFDB ; https://www.pagetable.com/c64ref/kernal/#SETTIM
+000810  2               KERNAL_RDTIM = $FFDE ; https://www.pagetable.com/c64ref/kernal/#RDTIM
+000810  2               
+000810  1               .include "variables.inc"
+000810  2               ; variables
+000810  2               GAME_TIMER = $24    ; ZP address to manage game timing
+000810  2               GAME_BACKGROUND = $25   ; ZP address to manage game background colour
+000810  2               SINE_POINT = $26
+000810  2               
+000810  2               
+000810  1               
+000810  1               
+000810  1  80 B0 D9 F5  sine:   .byte 128,176,217,245,255,254,245,217,175,128,77,36,8,0,8,36,78
+000814  1  FF FE F5 D9  
+000818  1  AF 80 4D 24  
+000821  1  0A 14 1E 28  screenX:.byte 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170
+000825  1  32 3C 46 50  
+000829  1  5A 64 6E 78  
+000832  1               
+000832  1               ; ----------
+000832  1               ; start program
+000832  1               ; ----------
+000832  1               start:
+000832  1                   ; setup variables
+000832  1  A2 00            ldx #0
+000834  1  86 26            stx SINE_POINT
+000836  1                   ; switch to graphic screen mode, set size to zero, which is full screen
+000836  1  64 02            stz KERNAL_R0_L
+000838  1  64 03            stz KERNAL_R0_H
+00083A  1  64 04            stz KERNAL_R1_L
+00083C  1  64 05            stz KERNAL_R1_H
+00083E  1  64 06            stz KERNAL_R2_L
+000840  1  64 07            stz KERNAL_R2_H
+000842  1  64 08            stz KERNAL_R3_L
+000844  1  64 09            stz KERNAL_R3_H
+000846  1  20 20 FF         jsr KERNEL_GRAPH_INIT
+000849  1  20 26 FF         jsr KERNAL_GRAPH_SET_WINDOW
+00084C  1  20 23 FF         jsr KERNAL_GRAPH_CLEAR
+00084F  1                   ; set the graphic pen color
+00084F  1  A9 03            lda #3
+000851  1  20 29 FF         jsr KERNAL_GRAPH_SET_COLORS
+000854  1               
+000854  1  4C 57 08         jmp main
+000857  1               
+000857  1               
+000857  1               ; ----------
+000857  1               ; main
+000857  1               ; ----------
+000857  1               main:
+000857  1                   ; this is the main game loop
+000857  1                   ;
+000857  1               @gameLoop:
+000857  1               	; wait until 1/60 second has passed since last time
+000857  1  20 81 08         jsr waitTimerInterrupt
+00085A  1               
+00085A  1                   ; do our code
+00085A  1  20 61 08         jsr printSine
+00085D  1               
+00085D  1                   ; jump back to start of main loop
+00085D  1  4C 57 08         jmp @gameLoop
+000860  1               
+000860  1               @end:
+000860  1                   ; do some end game things
+000860  1                   ; exit the game
+000860  1  60               rts
+000861  1               
+000861  1               
+000861  1               ; ----------
+000861  1               ; function - lookup table sine wave
+000861  1               ; ----------
+000861  1               printSine:
+000861  1  A6 26            ldx SINE_POINT ; get the current table pointer
+000863  1  BD 10 08         lda sine,x  ; get the current sine value from the lookup table
+000866  1  BC 21 08         ldy screenX,x   ; get the current screen x value from the lookup table
+000869  1                   ; draw a 'line' dot
+000869  1  84 02            sty KERNAL_R0 ; x
+00086B  1  85 04            sta KERNAL_R1 ; y
+00086D  1  84 06            sty KERNAL_R2 ; same x so its a dot
+00086F  1  85 08            sta KERNAL_R3 ; same y so its a dot
+000871  1  20 2C FF         jsr KERNAL_GRAPH_DRAW_LINE
+000874  1               
+000874  1                   ; increse the pointer
+000874  1  E6 26            inc SINE_POINT
+000876  1  A5 26            lda SINE_POINT
+000878  1  C9 11            cmp #17
+00087A  1  90 04            bcc @pointerOk
+00087C  1  A9 00            lda #0
+00087E  1  85 26            sta SINE_POINT
+000880  1               @pointerOk:
+000880  1               
+000880  1  60               rts
+000881  1               
+000881  1               
+000881  1               
+000881  1               
+000881  1               ; ----------
+000881  1               ; function - wait for timer interrupt
+000881  1               ; ----------
+000881  1               ; This function uses the variable GAME_TIMER
+000881  1               ; The variable GAME_TIMER should be initialized during program start
+000881  1               ; Using the function KERNAL_RDTIM and saving reg A into GAME_TIMER
+000881  1               waitTimerInterrupt:
+000881  1               @start:
+000881  1                   ; none
+000881  1               @loop:
+000881  1  20 DE FF         jsr KERNAL_RDTIM
+000884  1  C5 24            cmp GAME_TIMER ; Compare current jiffy in A to previous jiffy in GAME_TIMER
+000886  1  F0 F9            beq @loop ; If not different then loop
+000888  1               @end:
+000888  1  85 24            sta GAME_TIMER ; update our timing variable
+00088A  1  60               rts
+00088A  1               

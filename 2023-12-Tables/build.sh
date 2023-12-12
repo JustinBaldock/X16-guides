@@ -1,0 +1,1 @@
+cl65 -l build.list --verbose -o table-demo.prg --cpu 65c02 -t cx16 table-demo.asm -C cx16-asm.cfg -m table-demo.map -u __EXEHDR__
