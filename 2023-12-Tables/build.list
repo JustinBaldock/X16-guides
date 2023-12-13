@@ -19,7 +19,7 @@ Current file: table-demo.asm
 00080D  1               .segment "CODE"
 00080D  1               
 00080D  1               
-00080D  1  4C 32 08     jmp start
+00080D  1  4C 21 08     jmp start
 000810  1               
 000810  1               
 000810  1               .include "kernal.inc"
@@ -55,6 +55,7 @@ Current file: table-demo.asm
 000810  2               KERNEL_GRAPH_INIT   = $FF20
 000810  2               KERNAL_GRAPH_SET_COLORS = $FF29
 000810  2               KERNAL_GRAPH_SET_WINDOW = $FF26
+000810  2               KERNAL_PLOT = $FFF0
 000810  2               KERNAL_SETTIM = $FFDB ; https://www.pagetable.com/c64ref/kernal/#SETTIM
 000810  2               KERNAL_RDTIM = $FFDE ; https://www.pagetable.com/c64ref/kernal/#RDTIM
 000810  2               
@@ -63,107 +64,139 @@ Current file: table-demo.asm
 000810  2               GAME_TIMER = $24    ; ZP address to manage game timing
 000810  2               GAME_BACKGROUND = $25   ; ZP address to manage game background colour
 000810  2               SINE_POINT = $26
+000810  2               SCREEN_X = $27
+000810  2               SCREEN_Y = $28
 000810  2               
+000810  2               
+000810  1               .include "petsciiCodes.inc"
+000810  2               ; PETSCII Codes
+000810  2               COLOUR_WHITE      = $05
+000810  2               RETURN            = $0D
+000810  2               SPACE             = $20
+000810  2               CHAR_ZERO         = $30
+000810  2               CHAR_SIX          = $36
+000810  2               CHAR_NINE         = $39
+000810  2               CHAR_C            = $43
+000810  2               CHAR_I            = $49
+000810  2               CHAR_O            = $4F
+000810  2               CHAR_T            = $54
+000810  2               CTRL_CLR          = $93
+000810  2               
+000810  2               ; Screen Codes
+000810  2               CTRL_REVERSE      = $80
 000810  2               
 000810  1               
 000810  1               
 000810  1  80 B0 D9 F5  sine:   .byte 128,176,217,245,255,254,245,217,175,128,77,36,8,0,8,36,78
 000814  1  FF FE F5 D9  
 000818  1  AF 80 4D 24  
-000821  1  0A 14 1E 28  screenX:.byte 10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170
-000825  1  32 3C 46 50  
-000829  1  5A 64 6E 78  
-000832  1               
-000832  1               ; ----------
-000832  1               ; start program
-000832  1               ; ----------
-000832  1               start:
-000832  1                   ; setup variables
-000832  1  A2 00            ldx #0
-000834  1  86 26            stx SINE_POINT
-000836  1                   ; switch to graphic screen mode, set size to zero, which is full screen
-000836  1  64 02            stz KERNAL_R0_L
-000838  1  64 03            stz KERNAL_R0_H
-00083A  1  64 04            stz KERNAL_R1_L
-00083C  1  64 05            stz KERNAL_R1_H
-00083E  1  64 06            stz KERNAL_R2_L
-000840  1  64 07            stz KERNAL_R2_H
-000842  1  64 08            stz KERNAL_R3_L
-000844  1  64 09            stz KERNAL_R3_H
-000846  1  20 20 FF         jsr KERNEL_GRAPH_INIT
-000849  1  20 26 FF         jsr KERNAL_GRAPH_SET_WINDOW
-00084C  1  20 23 FF         jsr KERNAL_GRAPH_CLEAR
-00084F  1                   ; set the graphic pen color
-00084F  1  A9 03            lda #3
-000851  1  20 29 FF         jsr KERNAL_GRAPH_SET_COLORS
-000854  1               
-000854  1  4C 57 08         jmp main
-000857  1               
-000857  1               
-000857  1               ; ----------
-000857  1               ; main
-000857  1               ; ----------
-000857  1               main:
-000857  1                   ; this is the main game loop
-000857  1                   ;
-000857  1               @gameLoop:
-000857  1               	; wait until 1/60 second has passed since last time
-000857  1  20 81 08         jsr waitTimerInterrupt
-00085A  1               
-00085A  1                   ; do our code
-00085A  1  20 61 08         jsr printSine
+000821  1               ;screenX:.byte 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
+000821  1               
+000821  1               
+000821  1               ; ----------
+000821  1               ; start program
+000821  1               ; ----------
+000821  1               start:
+000821  1                   ; setup variables
+000821  1  A2 00            ldx #0
+000823  1  86 26            stx SINE_POINT
+000825  1                   ; switch to graphic screen mode, set size to zero, which is full screen
+000825  1                   ;stz KERNAL_R0_L
+000825  1                   ;stz KERNAL_R0_H
+000825  1                   ;stz KERNAL_R1_L
+000825  1                   ;stz KERNAL_R1_H
+000825  1                   ;stz KERNAL_R2_L
+000825  1                   ;stz KERNAL_R2_H
+000825  1                   ;stz KERNAL_R3_L
+000825  1                   ;stz KERNAL_R3_H
+000825  1                   ;jsr KERNEL_GRAPH_INIT
+000825  1                   ;jsr KERNAL_GRAPH_SET_WINDOW
+000825  1                   ;jsr KERNAL_GRAPH_CLEAR
+000825  1                   ; set the graphic pen color
+000825  1                   ;lda #3
+000825  1                   ;jsr KERNAL_GRAPH_SET_COLORS
+000825  1               
+000825  1                   ; clear the screen
+000825  1  A9 93            lda #CTRL_CLR
+000827  1  20 D2 FF         jsr KERNAL_CHROUT
+00082A  1               
+00082A  1  4C 2D 08         jmp main
+00082D  1               
+00082D  1               
+00082D  1               ; ----------
+00082D  1               ; main
+00082D  1               ; ----------
+00082D  1               main:
+00082D  1                   ; this is the main game loop
+00082D  1                   ;
+00082D  1               @gameLoop:
+00082D  1               	; wait until 1/60 second has passed since last time
+00082D  1  20 5D 08         jsr waitTimerInterrupt
+000830  1               
+000830  1                   ; do our code
+000830  1  20 37 08         jsr printSine
+000833  1               
+000833  1                   ; jump back to start of main loop
+000833  1  4C 2D 08         jmp @gameLoop
+000836  1               
+000836  1               @end:
+000836  1                   ; do some end game things
+000836  1                   ; exit the game
+000836  1  60               rts
+000837  1               
+000837  1               
+000837  1               ; ----------
+000837  1               ; function - lookup table sine wave
+000837  1               ; ----------
+000837  1               printSine:
+000837  1  A4 26            ldy SINE_POINT ; get the current table pointer into y
+000839  1  84 27            sty SCREEN_X ; set the current pointer value to be screen x
+00083B  1  BE 10 08         ldx sine,y  ; get the current sine value from the lookup table
+00083E  1  8A               txa ; move x to a
+00083F  1  4A               lsr ; logical shift right
+000840  1  4A               lsr
+000841  1  4A               lsr
+000842  1  85 28            sta SCREEN_Y
+000844  1               
+000844  1                   ; draw a 'line' dot
+000844  1                   ;sty KERNAL_R0 ; x
+000844  1                   ;sta KERNAL_R1 ; y
+000844  1                   ;sty KERNAL_R2 ; same x so its a dot
+000844  1                   ;sta KERNAL_R3 ; same y so its a dot
+000844  1                   ;jsr KERNAL_GRAPH_DRAW_LINE
+000844  1  A6 28            ldx SCREEN_Y
+000846  1  A4 27            ldy SCREEN_X
+000848  1  20 F0 FF         jsr KERNAL_PLOT
+00084B  1  A9 30            lda #CHAR_ZERO
+00084D  1  20 D2 FF         jsr KERNAL_CHROUT
+000850  1                   ; increase the pointer
+000850  1  E6 26            inc SINE_POINT
+000852  1  A5 26            lda SINE_POINT
+000854  1  C9 11            cmp #17
+000856  1  90 04            bcc @pointerOk
+000858  1  A9 00            lda #0
+00085A  1  85 26            sta SINE_POINT
+00085C  1               @pointerOk:
+00085C  1               
+00085C  1  60               rts
 00085D  1               
-00085D  1                   ; jump back to start of main loop
-00085D  1  4C 57 08         jmp @gameLoop
-000860  1               
-000860  1               @end:
-000860  1                   ; do some end game things
-000860  1                   ; exit the game
-000860  1  60               rts
-000861  1               
-000861  1               
-000861  1               ; ----------
-000861  1               ; function - lookup table sine wave
-000861  1               ; ----------
-000861  1               printSine:
-000861  1  A6 26            ldx SINE_POINT ; get the current table pointer
-000863  1  BD 10 08         lda sine,x  ; get the current sine value from the lookup table
-000866  1  BC 21 08         ldy screenX,x   ; get the current screen x value from the lookup table
-000869  1                   ; draw a 'line' dot
-000869  1  84 02            sty KERNAL_R0 ; x
-00086B  1  85 04            sta KERNAL_R1 ; y
-00086D  1  84 06            sty KERNAL_R2 ; same x so its a dot
-00086F  1  85 08            sta KERNAL_R3 ; same y so its a dot
-000871  1  20 2C FF         jsr KERNAL_GRAPH_DRAW_LINE
-000874  1               
-000874  1                   ; increse the pointer
-000874  1  E6 26            inc SINE_POINT
-000876  1  A5 26            lda SINE_POINT
-000878  1  C9 11            cmp #17
-00087A  1  90 04            bcc @pointerOk
-00087C  1  A9 00            lda #0
-00087E  1  85 26            sta SINE_POINT
-000880  1               @pointerOk:
-000880  1               
-000880  1  60               rts
-000881  1               
-000881  1               
-000881  1               
-000881  1               
-000881  1               ; ----------
-000881  1               ; function - wait for timer interrupt
-000881  1               ; ----------
-000881  1               ; This function uses the variable GAME_TIMER
-000881  1               ; The variable GAME_TIMER should be initialized during program start
-000881  1               ; Using the function KERNAL_RDTIM and saving reg A into GAME_TIMER
-000881  1               waitTimerInterrupt:
-000881  1               @start:
-000881  1                   ; none
-000881  1               @loop:
-000881  1  20 DE FF         jsr KERNAL_RDTIM
-000884  1  C5 24            cmp GAME_TIMER ; Compare current jiffy in A to previous jiffy in GAME_TIMER
-000886  1  F0 F9            beq @loop ; If not different then loop
-000888  1               @end:
-000888  1  85 24            sta GAME_TIMER ; update our timing variable
-00088A  1  60               rts
-00088A  1               
+00085D  1               
+00085D  1               
+00085D  1               
+00085D  1               ; ----------
+00085D  1               ; function - wait for timer interrupt
+00085D  1               ; ----------
+00085D  1               ; This function uses the variable GAME_TIMER
+00085D  1               ; The variable GAME_TIMER should be initialized during program start
+00085D  1               ; Using the function KERNAL_RDTIM and saving reg A into GAME_TIMER
+00085D  1               waitTimerInterrupt:
+00085D  1               @start:
+00085D  1                   ; none
+00085D  1               @loop:
+00085D  1  20 DE FF         jsr KERNAL_RDTIM
+000860  1  C5 24            cmp GAME_TIMER ; Compare current jiffy in A to previous jiffy in GAME_TIMER
+000862  1  F0 F9            beq @loop ; If not different then loop
+000864  1               @end:
+000864  1  85 24            sta GAME_TIMER ; update our timing variable
+000866  1  60               rts
+000866  1               
