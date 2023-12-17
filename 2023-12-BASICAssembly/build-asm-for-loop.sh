@@ -1,0 +1,1 @@
+cl65 -l build.list --verbose -o asm-for-loop.prg --cpu 65c02 -t cx16 asm-for-loop.asm -C cx16-asm.cfg -m asm-for-loop.map -u __EXEHDR__

@@ -1,0 +1,122 @@
+ca65 V2.18 - Ubuntu 2.19-1
+Main file   : asm-for-loop.asm
+Current file: asm-for-loop.asm
+
+000000r 1               ; Using Visual Studio Code (VCS)
+000000r 1               ; VSC extensions
+000000r 1               ; ca65 Macro Assembler Language Support
+000000r 1               
+000000r 1               ; Requires cc65
+000000r 1               ;
+000000r 1               
+000000r 1               .org $080D
+00080D  1               
+00080D  1  4C 43 08     jmp main
+000810  1               
+000810  1               ; our strings to print to screen
+000810  1  4C 4F 4F 50  MESSAGE_LOOP_SETUP: .asciiz "loop setup."
+000814  1  20 53 45 54  
+000818  1  55 50 2E 00  
+00081C  1  4C 4F 4F 50  MESSAGE_LOOPING:    .asciiz "looping..."
+000820  1  49 4E 47 2E  
+000824  1  2E 2E 00     
+000827  1  4C 4F 4F 50  MESSAGE_LOOP_END:   .asciiz "loop finished."
+00082B  1  20 46 49 4E  
+00082F  1  49 53 48 45  
+000836  1               
+000836  1               ; include our code libraries
+000836  1               .include "kernal.inc"
+000836  2               ; X16 Kernal lib
+000836  2               ; 2023-12-18
+000836  2               ; include all the X16 kernal related info here
+000836  2               
+000836  2               ; Kernal Zeropage
+000836  2               ; The registers R0 to R4 are the 16-bit Application Binary Interface (ABI) used by the Kernal
+000836  2               ; R0 - R5 = Arguments / Return values
+000836  2               ; R6 - R10 = Return values
+000836  2               ; R11 - R15 = Scratch
+000836  2               KERNAL_R0   = $0002
+000836  2               KERNAL_R0_L = $0002
+000836  2               KERNAL_R0_H = $0003
+000836  2               KERNAL_R1   = $0004
+000836  2               KERNAL_R1_L = $0004
+000836  2               KERNAL_R1_H = $0005
+000836  2               KERNAL_R2   = $0006
+000836  2               KERNAL_R2_L = $0006
+000836  2               KERNAL_R2_H = $0007
+000836  2               KERNAL_R3   = $0008
+000836  2               KERNAL_R3_L = $0008
+000836  2               KERNAL_R3_H = $0009
+000836  2               KERNAL_R4   = $000A
+000836  2               KERNAL_R4_L = $000A
+000836  2               KERNAL_R4_H = $000B
+000836  2               
+000836  2               ; Kernal Functions
+000836  2               KERNAL_CHROUT   = $FFD2
+000836  2               KERNAL_GETIN    = $FFE4
+000836  2               KERNAL_CLOCK_SET = $FF4D
+000836  2               KERNAL_CLOCK_GET = $FF50 ; https://github.com/X16Community/x16-docs/blob/master/X16%20Reference%20-%2004%20-%20KERNAL.md#function-name-clock_set_date_time
+000836  2               ; clock_get does NOT support jiffy
+000836  2               KERNAL_GRAPH_CLEAR  = $FF23
+000836  2               KERNAL_GRAPH_DRAW_LINE  = $FF2C
+000836  2               KERNEL_GRAPH_INIT   = $FF20
+000836  2               KERNAL_GRAPH_SET_COLORS = $FF29
+000836  2               KERNAL_GRAPH_SET_WINDOW = $FF26
+000836  2               KERNAL_PLOT = $FFF0
+000836  2               KERNAL_SETTIM = $FFDB ; https://www.pagetable.com/c64ref/kernal/#SETTIM
+000836  2               KERNAL_RDTIM = $FFDE ; https://www.pagetable.com/c64ref/kernal/#RDTIM
+000836  2               
+000836  1               .include "function-lib.asm"
+000836  2               ; Starting to create a little library of helper functions
+000836  2               ; 2023-12-18
+000836  2               
+000836  2               printString:
+000836  2               ; print string to screen
+000836  2               ; register y is trashed
+000836  2               ; uses kernal R4 = address of string to print
+000836  2               ; uses kernal chrout
+000836  2               @start:
+000836  2  A0 00            ldy #$00
+000838  2               @loop:
+000838  2  B1 0A            lda (KERNAL_R4),y ; absolute indirect addressing using ()
+00083A  2  F0 06            beq @loopEnd
+00083C  2  20 D2 FF         jsr KERNAL_CHROUT
+00083F  2  C8               iny
+000840  2  D0 F6            bne @loop
+000842  2               @loopEnd:
+000842  2  60               rts
+000843  2               
+000843  1               
+000843  1               main:
+000843  1               
+000843  1               @loopStart:
+000843  1  A2 00            ldx #0 ; set loop counter to zero
+000845  1                   ; set which text message we want to print
+000845  1  A9 10            lda #<MESSAGE_LOOP_SETUP
+000847  1  85 0A            sta KERNAL_R4_L
+000849  1  A9 08            lda #>MESSAGE_LOOP_SETUP
+00084B  1  85 0B            sta KERNAL_R4_H
+00084D  1                   ; print to screen
+00084D  1  20 36 08         jsr printString
+000850  1               @looping:
+000850  1                   ; perform our loop code
+000850  1  A9 1C            lda #<MESSAGE_LOOPING
+000852  1  85 0A            sta KERNAL_R4_L
+000854  1  A9 08            lda #>MESSAGE_LOOPING
+000856  1  85 0B            sta KERNAL_R4_H
+000858  1                   ; print to screen
+000858  1  20 36 08         jsr printString
+00085B  1               
+00085B  1  E8               inx ; increase counter
+00085C  1  E0 0F            cpx #$0f ; check if counter has reached 255
+00085E  1  90 F0            bcc @looping
+000860  1               @loopEnd:
+000860  1                   ; loop has ended
+000860  1  A9 27            lda #<MESSAGE_LOOP_END
+000862  1  85 0A            sta KERNAL_R4_L
+000864  1  A9 08            lda #>MESSAGE_LOOP_END
+000866  1  85 0B            sta KERNAL_R4_H
+000868  1                   ; print to screen
+000868  1  20 36 08         jsr printString
+00086B  1  60               rts
+00086B  1               
